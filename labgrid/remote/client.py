@@ -460,6 +460,19 @@ class ClientSession(ApplicationSession):
             raise ServerError(f"failed to set comment {comment} for place {place.name}")
         return res
 
+    async def get_tags(self):
+        """Display the tags of a place"""
+        place = self.get_place()
+
+        if self.args.tags:
+            tags = {key: place.tags[key] for key in self.args.tags}
+        else:
+            tags = place.tags
+        tags = OrderedDict(sorted(tags.items()))
+
+        for k, v in tags.items():
+            print(f"{k:20s} {v}")
+
     async def set_tags(self):
         """Set the tags on a place"""
         place = self.get_place()
@@ -1549,6 +1562,12 @@ def main():
                                       help="update the place comment")
     subparser.add_argument('comment', nargs='+')
     subparser.set_defaults(func=ClientSession.set_comment)
+
+    subparser = subparsers.add_parser('get-tags',
+                                      help="display the place tags")
+    subparser.add_argument('tags', metavar='KEY=VALUE', nargs='*',
+                           help="use an empty value to print everyting")
+    subparser.set_defaults(func=ClientSession.get_tags)
 
     subparser = subparsers.add_parser('set-tags',
                                       help="update the place tags")
